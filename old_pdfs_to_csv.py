@@ -7,7 +7,7 @@ import pandas as pd
 directory_path = "./relatorios_antigos"
 pdf_files = [file for file in os.listdir(directory_path) if file.endswith(".pdf")]
 pdf_files.sort() # sort the list of PDF files alphabetically
-pdf_file_name = pdf_files[1]
+pdf_file_name = pdf_files[2]
 
 print(f'O pdf {pdf_file_name} sera lido e tratado')
 
@@ -108,10 +108,12 @@ print(idx)
 if len(idx) > 0:
     split_index = idx[0]
     df_automoveis = df.loc[:split_index-1]
+    df_automoveis['tipo'] = 'automoveis'
     automoveis_csv = df_automoveis.to_csv(f'./automoveis/automoveis_{pdf_file_name}.csv',sep=',',index=False,encoding='utf8')
     print(df_automoveis)
     print('-----------------------------------------------------')
     df_comerciais_leves = df.loc[split_index:]
+    df_comerciais_leves['tipo'] = 'comerciais_leves'
     comerciais_leves_csv = df_comerciais_leves.to_csv(f'./comerciais_leves/comerciais_leves_{pdf_file_name}.csv',sep=',',index=False,encoding='utf8')
     print(df_comerciais_leves)
 else:
