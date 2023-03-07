@@ -1,23 +1,27 @@
-import PyPDF2
+import PyPDF2 
 import csv
 import os
 import pandas as pd
 from get_actual_pdf import *
 
+def file_name(dir_path):
+    pdf_files = [file for file in os.listdir(dir_path) if file.endswith(".pdf")]
+    files = sorted(pdf_files, key=lambda x: os.path.getmtime(os.path.join(dir_path, x)), reverse=True)    
+    pdf_file_name = files[0]
+    return pdf_file_name.replace('.pdf','')
 
-def read_pdf(base_url):
-
-    pdf_file = f"./relatorios_emplacamento/{get_pdf_date(base_url)}.pdf" 
+def extract_text_pdf(dir_path):
+    pdf_file = f"./relatorios_emplacamentos/{file_name(dir_path)}.pdf" 
     pdf_reader = PyPDF2.PdfReader(open(pdf_file, 'rb'))
-    return pdf_reader
+    
+    page7 = pdf_reader.pages[6]
+    text = page7.extract_text()
+    return text
 
-def etl_pdf(base_url):
-    page7 = read_pdf(base_url).pages[6]  # 0-based index for page number
-
-    text7 = page7.extract_text()
+def text_to_list(dir_path):
 
     # Split the text into lines
-    lines7 = text7.split("\n")
+    lines7 = extract_text_pdf(dir_path).split("\n")
 
     # Remove empty lines
     lines = [line for line in lines7 if line.strip()]
@@ -43,62 +47,64 @@ def etl_pdf(base_url):
             row.pop(1)
             row.pop(1)
 
- # Replace forward slashes with commas in each row
-    for row in list_output:
-        for i in range(len(row)):
-            split_values = row[i].split('/')
-            if len(split_values) == 2:
-                row[i] = split_values[0]
-                row.insert(i+1, split_values[1])
-    
-
-    # Add headers to the list
-    list_output.insert(0, ['marca', 'modelo', 'qtd_emplacados'])
-
-    # Remove empty row
-    list_output.pop(1)
-
-# Replacing the dots with empty spaces cause the data type should be int and not float
-    for row in list_output:
-        for i in range(len(row)):
-            row[i] = row[i].replace('.','') # assign the result of replace() back to row[i]
-
     return list_output
 
-def create_csv(base_url):
+def list_to_df_etl(dir_path):
 
-        # Create directories for CSV files
-    if not os.path.exists('automoveis'):
-        os.mkdir('automoveis')
+    df = pd.DataFrame(text_to_list(dir_path))
+    df = df[8:]
 
-    if not os.path.exists('comerciais_leves'):
-        os.mkdir('comerciais_leves')
+    df = df.dropna()
+    # Reseting the index to eliminate any future problems.
+    df = df.reset_index(drop=True)
 
-    ano_mes = get_pdf_date(base_url)
+    # set the column names attribute to a list of header names
+    df.columns = ['marca/modelo', 'qtd_emplacados']
 
-    # Write the list to a CSV file with headers
-    with open(f'automoveis/automoveis_{ano_mes}.csv', 'w', newline='') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(etl_pdf(base_url)[0])
-        writer.writerows(etl_pdf(base_url)[8:58])
+    # Eliminating the '.' in the string
+    df['qtd_emplacados'] = df['qtd_emplacados'].str.replace('.', '', regex=False)
 
-    with open(f'comerciais_leves/comerciais_leves_{ano_mes}.csv', 'w', newline='') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(etl_pdf(base_url)[0])
-        writer.writerows(etl_pdf(base_url)[61:])
+    # Split the column into three columns
+    df[['marca', 'modelo1', 'modelo2']] = df['marca/modelo'].str.split('/', expand=True)
 
-def etl_csv(base_url):
+    # Join the second and third columns back together with a '/'
+    df['modelo'] = df[['modelo1', 'modelo2']].apply(lambda x: '/'.join(x.dropna().astype(str)), axis=1)
 
-    ano_mes = get_pdf_date(base_url)
+    # Drop the intermediate columns
+    df = df.drop(columns=['marca/modelo', 'modelo1', 'modelo2'])
 
-    df_automoveis = pd.read_csv(f'./automoveis/automoveis_{ano_mes}.csv')
-    df_automoveis['qtd_emplacados'] = df_automoveis['qtd_emplacados'].astype(float)
-    df_automoveis['ano_mes'] = ano_mes[:-2].replace('_','-')
-    changed_csv_automoveis = df_automoveis.to_csv(f'./automoveis/automoveis_{ano_mes}.csv',sep=',',index=False,encoding='utf8')
+    # Correcting the last '/' from VW MAN/EXPRESS
+    df['modelo'] = df['modelo'].apply(lambda x: '-'.join(x.rsplit('/', 1))) # rsplit splits x on the last occurrence of '/' and returns a list of two strings and join() joins the list of two strings with '-'.
 
-    df_comerciais_leves = pd.read_csv(f'./comerciais_leves/comerciais_leves_{ano_mes}.csv')
-    df_comerciais_leves['ano_mes'] = ano_mes[:-2].replace('_','-')
-    changed_csv_comerciais_leves = df_comerciais_leves.to_csv(f'./comerciais_leves/comerciais_leves_{ano_mes}.csv',sep=',',index=False,encoding='utf8')
+    # Organazing the columns
+    df = df[['marca','modelo','qtd_emplacados']]
 
-    return changed_csv_automoveis,changed_csv_comerciais_leves
+    # Adding year_month column
+    df['ano_mes'] = file_name(dir_path)[:-2].replace('_','-') + '-01'
 
+    # Changing to int type
+    df['qtd_emplacados'] = df['qtd_emplacados'].astype(int)
+
+    return df
+
+def create_csv(dir_path):
+
+    df = list_to_df_etl(dir_path)
+    # Find the index where the value jumps up
+    idx = (df['qtd_emplacados'].diff()>0).idxmax()
+
+    # Split the dataframe into two at those index values
+    df_automoveis = df.iloc[:idx]
+    df_automoveis['tipo'] = 'automoveis'
+    df_automoveis.to_csv(f'./automoveis/automoveis_{file_name(dir_path)}.csv',sep=',',index=False,encoding='utf8')
+    print(df_automoveis)
+    print('-----------------------------------------------------')
+    df_comerciais_leves = df.iloc[idx:]
+    df_comerciais_leves['tipo'] = 'comerciais_leves'
+    df_comerciais_leves.to_csv(f'./comerciais_leves/comerciais_leves_{file_name(dir_path)}.csv',sep=',',index=False,encoding='utf8')
+    print(df_comerciais_leves)
+
+    return print('Csvs criados')
+
+dir_path="./relatorios_emplacamentos"
+create_csv(dir_path)
