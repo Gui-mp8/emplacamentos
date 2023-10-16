@@ -33,7 +33,6 @@ class Endpoint(ABC):
         pass
 
 class ConsultarTabelaDeReferencia(Endpoint):
-
     def get_endpoint_response(self) -> requests.Response:
         response = requests.post(self.endpoint_url)
         return response
@@ -42,14 +41,14 @@ class ConsultarTabelaDeReferencia(Endpoint):
         return self.get_endpoint_response().json()
 
 class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
-    def __init__(self, codigotabelareferencia: str, codigo_fipe: str) -> None:
-        self.codigotabelareferencia = codigotabelareferencia
-        self.codigo_fipe = codigo_fipe
+    def __init__(self, **kwargs) -> None:
+        self.codigo_tabela_referencia = kwargs.get("codigo_tabela_referencia")
+        self.codigo_fipe = kwargs.get("codigo_fipe")
 
     def get_endpoint_response(self) -> requests.Response:
         payload = {
             'codigoTipoVeiculo': '1',
-            'codigoTabelaReferencia': f'{self.codigotabelareferencia}',
+            'codigoTabelaReferencia': f'{self.codigo_tabela_referencia}',
             'codigoModelo': '',
             'codigoMarca': '',
             'ano': '',
@@ -65,7 +64,33 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
     def get_endpoint_data(self) -> List[Dict[str, Any]]:
         return self.get_endpoint_response().json()
 
-if __name__ == "__main__":
-    data = ConsultarTabelaDeReferencia()
-    data.endpoint_url =  "ConsultarTabelaDeReferencia"
-    print(data.get_endpoint_data()[0]["Codigo"])
+class ConsultarValorComTodosParametros(Endpoint):
+    def __init__(self, **kwargs) -> None:
+        self.codigo_tabela_referencia = kwargs.get("codigo_tabela_referencia")
+        self.codigo_fipe = kwargs.get("codigo_fipe")
+        self.ano_modelo = kwargs.get("ano_modelo")
+        self.codigo_tipo_combustivel = kwargs.get("codigo_tipo_combustivel")
+
+    def get_endpoint_response(self) -> requests.Response:
+        payload = {
+            'codigoTabelaReferencia': f'{self.codigo_tabela_referencia}',
+            'codigoMarca': '',
+            'codigoModelo': '',
+            'codigoTipoVeiculo': '1',
+            'anoModelo': f'{self.ano_modelo}',
+            'codigoTipoCombustivel': f'{self.codigo_tipo_combustivel}',
+            'tipoVeiculo': 'carro',
+            'modeloCodigoExterno': f'{self.codigo_fipe}',
+            'tipoConsulta': 'codigo'
+        }
+
+        response = requests.post(self.endpoint_url,data=payload)
+        return response
+
+    def get_endpoint_data(self) -> List[Dict[str, Any]]:
+        return self.get_endpoint_response().json()
+
+# if __name__ == "__main__":
+#     data = ConsultarTabelaDeReferencia()
+#     data.endpoint_url =  "ConsultarTabelaDeReferencia"
+#     print(data.get_endpoint_data()[0]["Codigo"])
