@@ -17,7 +17,7 @@ def get_fipe_codes():
     for tag in soup.select('a[title^="Tabela FIPE código"]'):
         codigo_fipe = tag['href'][-8:]
         fipe_codes.append(codigo_fipe)
-    
+
     return fipe_codes
 
 def get_csv():
