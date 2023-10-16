@@ -1,5 +1,5 @@
-from  get_actual_pdf import *
-from actual_pdf_to_csv import *
+from  old_stuff.get_actual_pdf import *
+from old_stuff.actual_pdf_to_csv import *
 
 
 def main(base_url='http://www.fenabrave.org.br',dir_path="./relatorios_emplacamentos"):

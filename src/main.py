@@ -1,19 +1,28 @@
 import csv
+import os
 
 from endpoints.endpoints import ConsultarTabelaDeReferencia, ConsultarAnoModeloPeloCodigoFipe, ConsultarValorComTodosParametros
-from fipe_code_extraction.response_fipe_code import FipeCode
+from extractions_data.fipe_code_data import FipeCode
 
 def main():
-    data = ConsultarTabelaDeReferencia()
-    data.endpoint_url = "ConsultarTabelaDeReferencia"
-    codigo_tabela_referencia = data.get_endpoint_data()
-
     base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
     headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 OPR/103.0.0.0'}
     fipe = FipeCode()
     fipe.url_base = base_url
     fipe.headers = headers
     fipe_code_list = fipe.get_soup_data()
+
+    if not os.path.exists("./data/fipe_codes.csv"):
+        with open('./data/fipe_codes.csv', 'w', newline='') as f:
+            if fipe_code_list:  # Check if the list is not empty
+                fieldnames = fipe_code_list[0].keys()
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(fipe_code_list)
+
+    data = ConsultarTabelaDeReferencia()
+    data.endpoint_url = "ConsultarTabelaDeReferencia"
+    codigo_tabela_referencia = data.get_endpoint_data()
 
     results = []
     final_data_list = []
@@ -35,7 +44,7 @@ def main():
             print(item)
 
         # Write the data to a CSV file
-            with open('results.csv', 'w', newline='') as csvfile:
+            with open('./data/ano_combustivel.csv', 'w', newline='') as csvfile:
                 fieldnames = results[0].keys()
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
@@ -54,12 +63,12 @@ def main():
         final_data_list.append(final_data)
 
     # Write the data to a CSV file
-    with open('output.csv', 'w', newline='') as csvfile:
-        fieldnames = final_data_list[0].keys()
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in final_data_list:
-            writer.writerow(row)
+        with open('./data/fipe_car_data.csv', 'w', newline='') as csvfile:
+            fieldnames = final_data_list[0].keys()
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in final_data_list:
+                writer.writerow(row)
 
 if __name__ == "__main__":
     main()

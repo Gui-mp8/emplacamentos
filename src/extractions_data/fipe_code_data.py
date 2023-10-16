@@ -65,10 +65,10 @@ class FipeCode(SiteData):
         return fipe_data
 
 
-if __name__ == "__main__":
-    base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
-    headers = {"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 OPR/103.0.0.0'}
-    fipe = FipeCode()
-    fipe.url_base = base_url
-    fipe.headers = headers
-    print(fipe.get_soup_data())
+# if __name__ == "__main__":
+#     base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
+#     headers = {"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 OPR/103.0.0.0'}
+#     fipe = FipeCode()
+#     fipe.url_base = base_url
+#     fipe.headers = headers
+#     print(fipe.get_soup_data()["code"])

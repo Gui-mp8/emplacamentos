@@ -1,0 +1,1 @@
+### At class ConsultarAnoModeloPeloCodigoFipe can occour status code 520

@@ -2,7 +2,7 @@ import PyPDF2
 import csv
 import os
 import pandas as pd
-from get_actual_pdf import *
+from old_stuff.get_actual_pdf import *
 
 def file_name(dir_path):
     pdf_files = [file for file in os.listdir(dir_path) if file.endswith(".pdf")]
