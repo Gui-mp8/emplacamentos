@@ -42,17 +42,21 @@ class ConsultarTabelaDeReferencia(Endpoint):
         return self.get_endpoint_response().json()
 
 class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
+    def __init__(self, codigotabelareferencia: str, codigo_fipe: str) -> None:
+        self.codigotabelareferencia = codigotabelareferencia
+        self.codigo_fipe = codigo_fipe
+
     def get_endpoint_response(self) -> requests.Response:
         payload = {
             'codigoTipoVeiculo': '1',
-            'codigoTabelaReferencia': '302',
+            'codigoTabelaReferencia': f'{self.codigotabelareferencia}',
             'codigoModelo': '',
             'codigoMarca': '',
             'ano': '',
             'codigoTipoCombustivel': '',
             'anoModelo': '',
             'tipoVeiculo': '',
-            'modeloCodigoExterno': '002157-1',
+            'modeloCodigoExterno': f'{self.codigo_fipe}',
         }
 
         response = requests.post(self.endpoint_url,data=payload)
@@ -62,6 +66,6 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
         return self.get_endpoint_response().json()
 
 if __name__ == "__main__":
-    data = ConsultarAnoModeloPeloCodigoFipe()
-    data.endpoint_url =  "ConsultarAnoModeloPeloCodigoFipe"
-    print(data.get_endpoint_data())
+    data = ConsultarTabelaDeReferencia()
+    data.endpoint_url =  "ConsultarTabelaDeReferencia"
+    print(data.get_endpoint_data()[0]["Codigo"])
