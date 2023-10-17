@@ -1,42 +1,10 @@
-from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-class Endpoint(ABC):
-    def __init__(self) -> None:
-        self._endpoint_url = "https://veiculos.fipe.org.br/api/veiculos/"
-        # self._payload = kwargs.get('payload', {})
-
-    @property
-    def endpoint_url(self) -> str:
-        return self._endpoint_url
-
-    @endpoint_url.setter
-    def endpoint_url(self, endpoint):
-        self._endpoint_url = "https://veiculos.fipe.org.br/api/veiculos/" + endpoint
-
-    # @property
-    # def payload(self) -> dict:
-    #     return self._payload
-
-    # @payload.setter
-    # def payload(self, payload):
-    #     self._payload = payload
-
-    @abstractmethod
-    def create_session(self) -> requests.Session:
-        pass
-
-    @abstractmethod
-    def get_endpoint_response(self) -> requests.Response:
-        pass
-
-    @abstractmethod
-    def get_endpoint_data(self) -> List[Dict[str, Any]]:
-        pass
+from abstractions.endpoints_abstraction import Endpoint
 
 class ConsultarTabelaDeReferencia(Endpoint):
     def create_session(self):
@@ -117,15 +85,18 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
 
         # if response.status_code != 200:
         #     raise requests.exceptions.RequestException(f"Request failed with status code {response.status_code}")
-        if response.content  == None:
+
+        if response is None:
+            # Skip this request and return an empty list or handle it as needed
             print(f"None data for the fipe code: {self.codigo_fipe}")
-            pass
+            return []
 
         try:
             data = response.json()
             return data
         except ValueError:
-            raise requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0)
+            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0))
+            return []
 
 
 class ConsultarValorComTodosParametros(Endpoint):
@@ -172,13 +143,16 @@ class ConsultarValorComTodosParametros(Endpoint):
     def get_endpoint_data(self) -> List[Dict[str, Any]]:
         response = self.get_endpoint_response()
 
-        if response.status_code != 200:
-            raise requests.exceptions.RequestException(f"Request failed with status code {response.status_code}")
+        if response is None:
+            # Skip this request and return an empty list or handle it as needed
+            print(f"None data for the fipe code: {self.codigo_fipe}")
+            return []
 
         try:
             data = response.json()
             return data
         except ValueError:
-            raise requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0)
+            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0))
+            return []
 
 
