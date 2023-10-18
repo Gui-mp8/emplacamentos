@@ -16,19 +16,6 @@ def main():
 
     JsonFiles().writing_data(fipe_code_list, "fipe_codes")
 
-    # if not os.path.exists("./data/fipe_codes.json"):
-    #     with open('./data/fipe_codes.json', 'w') as f:
-    #         if fipe_code_list:  # Check if the list is not empty
-    #             json.dump(fipe_code_list, f, indent=0)
-
-    # if not os.path.exists("./data/fipe_codes.csv"):
-    #     with open('./data/fipe_codes.csv', 'w', newline='') as f:
-    #         if fipe_code_list:  # Check if the list is not empty
-    #             fieldnames = fipe_code_list[0].keys()
-    #             writer = csv.DictWriter(f, fieldnames=fieldnames)
-    #             writer.writeheader()
-    #             writer.writerows(fipe_code_list)
-
     data = ConsultarTabelaDeReferencia()
     data.endpoint_url = "ConsultarTabelaDeReferencia"
     codigo_tabela_referencia = data.get_endpoint_data()
@@ -57,16 +44,6 @@ def main():
                 print(item)
 
                 JsonFiles().writing_data(results, "ano_combustivel")
-                # with open('./data/ano_combustivel.json', 'w') as jsonfile:
-                #     json.dump(results, jsonfile, indent=1)
-
-    #         # Write the data to a CSV file
-    #             # with open('./data/ano_combustivel.csv', 'w', newline='') as csvfile:
-    #             #     fieldnames = results[0].keys()
-    #             #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    #             #     writer.writeheader()
-    #             #     for row in results:
-    #             #         writer.writerow(row)
 
     for values in results:
         data = ConsultarValorComTodosParametros(
@@ -81,17 +58,6 @@ def main():
         print(final_data)
 
         JsonFiles().writing_data(final_data_list, "fipe_car_data")
-        # with open('./data/fipe_car_data.json', 'w') as jsonfile:
-        #     json.dump(final_data_list, jsonfile, indent=0)
-
-
-    # Write the data to a CSV file
-        # with open('./data/fipe_car_data.csv', 'w', newline='') as csvfile:
-        #     fieldnames = final_data_list[0].keys()
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for row in final_data_list:
-        #         writer.writerow(row)
 
 if __name__ == "__main__":
     main()
