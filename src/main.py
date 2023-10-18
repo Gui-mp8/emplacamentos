@@ -2,7 +2,9 @@
 import json
 import os
 
-from endpoints.endpoints import ConsultarTabelaDeReferencia, ConsultarAnoModeloPeloCodigoFipe, ConsultarValorComTodosParametros
+from endpoints.tabela_referencia import ConsultarTabelaDeReferencia
+from endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
+from endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
 from extractions.fipe_code_data import FipeCode
 from utils.saving_files import JsonFiles
 
