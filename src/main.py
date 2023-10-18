@@ -4,6 +4,7 @@ import os
 
 from endpoints.endpoints import ConsultarTabelaDeReferencia, ConsultarAnoModeloPeloCodigoFipe, ConsultarValorComTodosParametros
 from extractions.fipe_code_data import FipeCode
+from utils.saving_files import JsonFiles
 
 def main():
     base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
@@ -13,10 +14,12 @@ def main():
     fipe.headers = headers
     fipe_code_list = fipe.get_soup_data()
 
-    if not os.path.exists("./data/fipe_codes.json"):
-        with open('./data/fipe_codes.json', 'w') as f:
-            if fipe_code_list:  # Check if the list is not empty
-                json.dump(fipe_code_list, f, indent=0)
+    JsonFiles().writing_data(fipe_code_list, "fipe_codes")
+
+    # if not os.path.exists("./data/fipe_codes.json"):
+    #     with open('./data/fipe_codes.json', 'w') as f:
+    #         if fipe_code_list:  # Check if the list is not empty
+    #             json.dump(fipe_code_list, f, indent=0)
 
     # if not os.path.exists("./data/fipe_codes.csv"):
     #     with open('./data/fipe_codes.csv', 'w', newline='') as f:
@@ -53,16 +56,17 @@ def main():
                 results.append(item)
                 print(item)
 
-                with open('./data/ano_combustivel.json', 'w') as jsonfile:
-                    json.dump(results, jsonfile, indent=1)
+                JsonFiles().writing_data(results, "ano_combustivel")
+                # with open('./data/ano_combustivel.json', 'w') as jsonfile:
+                #     json.dump(results, jsonfile, indent=1)
 
-            # Write the data to a CSV file
-                # with open('./data/ano_combustivel.csv', 'w', newline='') as csvfile:
-                #     fieldnames = results[0].keys()
-                #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                #     writer.writeheader()
-                #     for row in results:
-                #         writer.writerow(row)
+    #         # Write the data to a CSV file
+    #             # with open('./data/ano_combustivel.csv', 'w', newline='') as csvfile:
+    #             #     fieldnames = results[0].keys()
+    #             #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    #             #     writer.writeheader()
+    #             #     for row in results:
+    #             #         writer.writerow(row)
 
     for values in results:
         data = ConsultarValorComTodosParametros(
@@ -76,8 +80,9 @@ def main():
         final_data_list.append(final_data)
         print(final_data)
 
-        with open('./data/fipe_car_data.json', 'w') as jsonfile:
-            json.dump(final_data_list, jsonfile, indent=0)
+        JsonFiles().writing_data(final_data_list, "fipe_car_data")
+        # with open('./data/fipe_car_data.json', 'w') as jsonfile:
+        #     json.dump(final_data_list, jsonfile, indent=0)
 
 
     # Write the data to a CSV file
