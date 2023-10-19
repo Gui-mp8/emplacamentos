@@ -14,7 +14,7 @@ class SiteScraper(ABC):
         return self._url_base
 
     @url_base.setter
-    def url_base(self, value):
+    def url_base(self, value: str):
         self._url_base = value
 
     @property
@@ -22,7 +22,7 @@ class SiteScraper(ABC):
         return self._headers
 
     @headers.setter
-    def headers(self, value):
+    def headers(self, value: str):
         self._headers = value
 
     @abstractmethod

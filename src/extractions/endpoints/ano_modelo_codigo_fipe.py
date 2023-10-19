@@ -11,7 +11,7 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
         self.codigo_tabela_referencia = kwargs.get("codigo_tabela_referencia")
         self.codigo_fipe = kwargs.get("codigo_fipe")
 
-    def create_session(self):
+    def create_session(self) -> requests.Session():
         session = None
 
         if session is None:
