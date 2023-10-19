@@ -1,11 +1,11 @@
 import os
 from datetime import datetime
-import json
+import csv
 from typing import List, Dict, Any
 
 from abstractions.saving_files_abstraction import SavingFiles
 
-class JsonFiles(SavingFiles):
+class CsvFiles(SavingFiles):
     def __init__(self) -> None:
         self.principal_folder = './data'
         self.date = datetime.now().strftime("%Y-%m")
@@ -24,10 +24,12 @@ class JsonFiles(SavingFiles):
         self.folder_creation()
 
         date_folder = os.path.join(self.principal_folder, f'{self.date}')
-        json_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.json')
+        csv_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.csv')
 
-        with open(json_file_path, 'w') as json_file:
-            json.dump(data, json_file, indent=4)
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
 
     # def check_existing_data(file_name: str):
     #     date_folder = os.path.join(self.principal_folder, f'{self.date}')

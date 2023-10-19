@@ -4,9 +4,10 @@ from extractions.fipe_code_data import FipeCode
 from extractions.endpoints.tabela_referencia import ConsultarTabelaDeReferencia
 from extractions.endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
 from extractions.endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
-from utils.saving_files import JsonFiles
+from utils.saving_files import CsvFiles
 
 def main():
+
     base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
     headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 OPR/103.0.0.0'}
     fipe = FipeCode()
@@ -14,7 +15,7 @@ def main():
     fipe.headers = headers
     fipe_code_list = fipe.get_soup_data()
 
-    JsonFiles().writing_data(fipe_code_list, "fipe_codes")
+    CsvFiles().writing_data(fipe_code_list, "fipe_codes")
 
     data = ConsultarTabelaDeReferencia()
     data.endpoint_url = "ConsultarTabelaDeReferencia"
@@ -43,7 +44,7 @@ def main():
                 ano_combustivel.append(item)
                 print(item)
 
-                JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
+                CsvFiles().writing_data(ano_combustivel, "ano_combustivel")
 
     for values in ano_combustivel:
         data = ConsultarValorComTodosParametros(
@@ -57,7 +58,7 @@ def main():
         fipe_car_data.append(final_data)
         print(final_data)
 
-        JsonFiles().writing_data(fipe_car_data, "fipe_car_data")
+        CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
 
 if __name__ == "__main__":
     main()
