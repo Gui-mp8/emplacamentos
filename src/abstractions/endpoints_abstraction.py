@@ -3,7 +3,6 @@ from typing import List, Dict, Any
 
 import requests
 
-
 class Endpoint(ABC):
     def __init__(self) -> None:
         self._endpoint_url = "https://veiculos.fipe.org.br/api/veiculos/"
@@ -14,7 +13,7 @@ class Endpoint(ABC):
         return self._endpoint_url
 
     @endpoint_url.setter
-    def endpoint_url(self, endpoint):
+    def endpoint_url(self, endpoint: str) -> str:
         self._endpoint_url = "https://veiculos.fipe.org.br/api/veiculos/" + endpoint
 
     # @property

@@ -1,11 +1,9 @@
-# import csv
-import json
 import os
 
-from endpoints.tabela_referencia import ConsultarTabelaDeReferencia
-from endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
-from endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
 from extractions.fipe_code_data import FipeCode
+from extractions.endpoints.tabela_referencia import ConsultarTabelaDeReferencia
+from extractions.endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
+from extractions.endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
 from utils.saving_files import JsonFiles
 
 def main():
@@ -22,8 +20,8 @@ def main():
     data.endpoint_url = "ConsultarTabelaDeReferencia"
     codigo_tabela_referencia = data.get_endpoint_data()
 
-    results = []
-    final_data_list = []
+    ano_combustivel = []
+    fipe_car_data = []
 
     for codigo_fipe in fipe_code_list:
         data = ConsultarAnoModeloPeloCodigoFipe(
@@ -42,12 +40,12 @@ def main():
                 item["codigo_fipe"] = codigo_fipe["code"]
                 item["ano_modelo"] = item["Value"].split("-")[0]
                 item["codigo_tipo_combustivel"] = item["Value"].split("-")[1]
-                results.append(item)
+                ano_combustivel.append(item)
                 print(item)
 
-                JsonFiles().writing_data(results, "ano_combustivel")
+                JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
 
-    for values in results:
+    for values in ano_combustivel:
         data = ConsultarValorComTodosParametros(
             codigo_tabela_referencia=values["codigo_tabela_referencia"],
             codigo_fipe=values["codigo_fipe"],
@@ -56,10 +54,10 @@ def main():
         )
         data.endpoint_url = "ConsultarValorComTodosParametros"
         final_data = data.get_endpoint_data()
-        final_data_list.append(final_data)
+        fipe_car_data.append(final_data)
         print(final_data)
 
-        JsonFiles().writing_data(final_data_list, "fipe_car_data")
+        JsonFiles().writing_data(fipe_car_data, "fipe_car_data")
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,10 @@ class SavingFiles(ABC):
     def folder_creation(self):
         pass
 
+    # @abstractmethod
+    # def check_existing_data(self):
+    #     pass
+
     @abstractmethod
     def writing_data(self, data: List[Dict[str, Any]], file_name: str) -> None:
         pass

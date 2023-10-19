@@ -8,12 +8,12 @@ from abstractions.endpoints_abstraction import Endpoint
 
 class ConsultarValorComTodosParametros(Endpoint):
     def __init__(self, **kwargs) -> None:
-        self.codigo_tabela_referencia = kwargs.get("codigo_tabela_referencia")
+        self.codigo_tabela_referencia: str = kwargs.get("codigo_tabela_referencia")
         self.codigo_fipe = kwargs.get("codigo_fipe")
         self.ano_modelo = kwargs.get("ano_modelo")
         self.codigo_tipo_combustivel = kwargs.get("codigo_tipo_combustivel")
 
-    def create_session(self):
+    def create_session(self) -> requests.Session():
         session = None
 
         if session is None:
