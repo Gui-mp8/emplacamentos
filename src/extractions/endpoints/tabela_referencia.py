@@ -7,7 +7,7 @@ from requests.packages.urllib3.util.retry import Retry
 from abstractions.endpoints_abstraction import Endpoint
 
 class ConsultarTabelaDeReferencia(Endpoint):
-    def create_session(self):
+    def create_session(self) -> requests.Session():
         session = None
 
         if session is None:
