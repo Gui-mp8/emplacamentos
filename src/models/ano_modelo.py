@@ -1,0 +1,9 @@
+from pydantic import BaseModel
+
+class AnoModelo(BaseModel):
+    ano_modelo: str
+    codigo_tipo_combustivel: str
+    codigo_tabela_referencia: int
+    codigo_fipe: str
+    mes_referencia: str
+    extraction_date: str
