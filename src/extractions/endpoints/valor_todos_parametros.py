@@ -67,7 +67,7 @@ class ConsultarValorComTodosParametros(Endpoint):
         try:
             data = response.json()
             carros = TabelaFipe(
-                valor=data["Valor"],
+                valor=data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
                 marca=data["Marca"],
                 modelo=data["Modelo"],
                 ano_modelo=data["AnoModelo"],
