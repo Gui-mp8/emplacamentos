@@ -2,4 +2,4 @@ venv
 __pycache__/
 data
 data_test
-old_stuff/
+old_stuff
