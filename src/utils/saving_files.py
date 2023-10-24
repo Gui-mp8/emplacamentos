@@ -13,12 +13,12 @@ class JsonFiles(SavingFiles):
         self.date = datetime.now().strftime("%Y-%m")
 
     def folder_creation(self) -> None:
-        if Validation().check_folders(self.principal_folder) == False:
+        if Validation.check_folders(self.principal_folder) == False:
             os.makedirs(self.principal_folder)
             print(f'{self.principal_folder} folder created!!!')
 
         files_folder = os.path.join(self.principal_folder, f'{self.date}')
-        if Validation().check_folders(files_folder) == False:
+        if Validation.check_folders(files_folder) == False:
             os.makedirs(files_folder)
             print(f'{files_folder} folder created!!!')
 
@@ -29,9 +29,9 @@ class JsonFiles(SavingFiles):
         json_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.json')
 
         # if Validation().checking_csv_data(file_path=csv_file_path, file_name=file_name) == False:
-        if data:
+        if data != {}:
             with open(json_file_path, "w") as json_file:
-                json.dump(data, json_file, indent=4)
+                json.dump(data, json_file, indent=4, default=str)
 
 class CsvFiles(SavingFiles):
     def __init__(self) -> None:
@@ -54,7 +54,7 @@ class CsvFiles(SavingFiles):
         date_folder = os.path.join(self.principal_folder, f'{self.date}')
         csv_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.csv')
 
-        if data:
+        if data != {}:
             with open(csv_file_path, 'w', newline='') as csv_file:
                 writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
                 writer.writeheader()

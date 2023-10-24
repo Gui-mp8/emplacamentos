@@ -5,7 +5,7 @@ from extractions.fipe_code_data import FipeCode
 from extractions.endpoints.tabela_referencia import ConsultarTabelaDeReferencia
 from extractions.endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
 from extractions.endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
-from utils.saving_files import JsonFiles
+from utils.saving_files import JsonFiles, CsvFiles
 from treatment.month_translation import month_translation
 
 def main():
@@ -33,10 +33,12 @@ def main():
         )
         data.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
         response_data = data.get_endpoint_data()
-        ano_combustivel.append(response_data)
-        JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
+        for item in response_data:
+            ano_combustivel.append(item)
+            JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
 
-    df = pd.read_json("/home/guilherme/Documentos/vscode/projetos/emplacamentos/data/2023-10/ano_combustivel_2023-10.json", encoding="utf-8")
+    df = pd.read_json("/home/guilherme/Documentos/vscode/projetos/emplacamentos/data/2023-10/ano_combustivel_2023-10.json")
+    print(df.to_string())
     fipe_car_data = []
 
     for index, row in df.iterrows():
@@ -53,7 +55,7 @@ def main():
         fipe_car_data.append(final_data)
         print(final_data)
 
-        JsonFiles().writing_data(fipe_car_data, "fipe_car_data")
+        CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
 
     end_time = time.time()  # Record the end time
     elapsed_time = end_time - start_time  # Calculate the elapsed time

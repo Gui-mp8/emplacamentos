@@ -51,11 +51,6 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
     def get_endpoint_data(self) -> List[Dict[str, Any]]:
         response = self.get_endpoint_response()
 
-        if response is None:
-            # Skip this request and return an empty list or handle it as needed
-            print(f"None data for the fipe code: {self.codigo_fipe}")
-            return None
-
         try:
             data = response.json()
             carros = []
