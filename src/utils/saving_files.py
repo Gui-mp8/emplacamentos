@@ -8,11 +8,29 @@ from abstractions.saving_files_abstraction import SavingFiles
 from utils.checking_files import Validation
 
 class JsonFiles(SavingFiles):
+    """
+        A class for working with JSON files.
+
+        This class provides methods for creating folders and writing JSON files at those folders.
+
+        Attributes:
+            principal_folder (str): The root directory for storing JSON files.
+            date (str): The current date in the format 'YYYY-MM'.
+
+        Methods:
+            folder_creation(): Creates necessary folders for storing JSON files.
+
+    """
     def __init__(self) -> None:
         self.principal_folder = './data'
         self.date = datetime.now().strftime("%Y-%m")
 
     def folder_creation(self) -> None:
+        """
+            Create folders for storing JSON files based on the month.
+
+            This method checks if the required folders exist and creates them if they don't.
+        """
         if Validation.check_folders(self.principal_folder) == False:
             os.makedirs(self.principal_folder)
             print(f'{self.principal_folder} folder created!!!')
