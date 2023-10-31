@@ -21,7 +21,7 @@ class FipeCode(SiteScraper):
 
     def get_soup_data(self) -> List[Dict[str, str]]:
         soup = self.get_soup()
-        fipe_data:List[Dict[str, str]]  = []
+        fipe_data= []
 
         for a_tag in soup.find_all('a', title=True):
             if a_tag.get('title').startswith("Tabela FIPE código"):
