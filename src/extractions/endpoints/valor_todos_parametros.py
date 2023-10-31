@@ -46,44 +46,37 @@ class ConsultarValorComTodosParametros(Endpoint):
 
         response = self.create_session().post(self.endpoint_url,data=payload)
         if response.status_code == 520:
-                print("Server Error (Status Code 520). Skipping this request.")
-                return None
+                print("Server Error (Status Code 520). Returning Empty Dict.")
+                return {}
         else:
             return response
-
-
-        # session = self.create_session()
-
-        # for _ in range(3):  # Try 3 times
-        #     response = session.post(self.endpoint_url, data=payload)
-        #     if response.status_code == 520:
-        #         print("Server Error (Status Code 520). Retrying...")
-        #     else:
-        #         return response
 
     def get_endpoint_data(self) -> List[Dict[str, Any]]:
         response = self.get_endpoint_response()
 
         try:
-            data = response.json()
-            carros = TabelaFipe(
-                valor=data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
-                marca=data["Marca"],
-                modelo=data["Modelo"],
-                ano_modelo=data["AnoModelo"],
-                combustivel=data["Combustivel"],
-                codigo_fipe=data["CodigoFipe"],
-                mes_referencia=self.mes_referencia,
-                extraction_date=datetime.now().strftime("%Y-%m-%d")
-                # "Autenticacao": "t0p7wf13js",
-                # "TipoVeiculo": 1,
-                # "SiglaCombustivel": "G",
-                # "DataConsulta": "s\u00e1bado, 21 de outubro de 2023 11:33"
-            )
+            if response != {}:
+                data = response.json()
+                carros = TabelaFipe(
+                    valor=data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
+                    marca=data["Marca"],
+                    modelo=data["Modelo"],
+                    ano_modelo=data["AnoModelo"],
+                    combustivel=data["Combustivel"],
+                    codigo_fipe=data["CodigoFipe"],
+                    mes_referencia=self.mes_referencia,
+                    extraction_date=datetime.now().strftime("%Y-%m-%d")
+                    # "Autenticacao": "t0p7wf13js",
+                    # "TipoVeiculo": 1,
+                    # "SiglaCombustivel": "G",
+                    # "DataConsulta": "s\u00e1bado, 21 de outubro de 2023 11:33"
+                )
 
-            return carros.model_dump()
+                return carros.model_dump()
+            else:
+                print('Returning Empty Dict')
+                return {}
+
         except ValueError:
-            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0))
+            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON. Returing Empty Value", response.text, 0))
             return {}
-
-

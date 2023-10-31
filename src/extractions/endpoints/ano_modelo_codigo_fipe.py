@@ -43,8 +43,8 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
 
         response = self.create_session().post(self.endpoint_url,data=payload)
         if response.status_code == 520:
-                print("Server Error (Status Code 520). Skipping this request.")
-                return None
+                print("Server Error (Status Code 520). Returning Empty dict.")
+                return {}
         else:
             return response
 
@@ -52,23 +52,31 @@ class ConsultarAnoModeloPeloCodigoFipe(Endpoint):
         response = self.get_endpoint_response()
 
         try:
-            data = response.json()
-            carros = []
-            for index, item in enumerate(data, start=1):
-                carro = AnoModelo(
-                    ano_modelo=item["Value"].split("-")[0],
-                    codigo_tipo_combustivel=item["Value"].split("-")[1],
-                    codigo_tabela_referencia=self.codigo_tabela_referencia,
-                    codigo_fipe=self.codigo_fipe,
-                    mes_referencia=self.mes_referencia,
-                    extraction_date=datetime.now().strftime("%Y-%m-%d")
-                )
-                carros.append(carro.model_dump())
-                print(carro)
+            if response != {}:
+                data = response.json()
+                carros = []
+                for index, item in enumerate(data, start=1):
+                    if isinstance(item, dict) and "Value" in item:
+                        carro = AnoModelo(
+                            value=item["Value"],
+                            ano_modelo = item["Value"].split("-")[0],
+                            codigo_tipo_combustivel = item["Value"].split("-")[1],
+                            codigo_tabela_referencia=self.codigo_tabela_referencia,
+                            codigo_fipe=self.codigo_fipe,
+                            mes_referencia=self.mes_referencia,
+                            extraction_date=datetime.now().strftime("%Y-%m-%d")
+                        )
+                        carros.append(carro.model_dump())
+                        print(carro)
+                    else:
+                        print("Item is not a dictionary with 'Value' key.")
+                        return {}
 
-            return carros
+                return carros
+            else:
+                print('Returning Empty Dict')
+                return {}
 
         except ValueError:
-            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON", response.text, 0))
+            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON. Returning Empty Value", response.text, 0))
             return {}
-
