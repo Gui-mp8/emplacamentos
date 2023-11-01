@@ -1,4 +1,3 @@
-from datetime import datetime
 
 def month_translation(mes_string: str) -> str:
     month_translation = {
