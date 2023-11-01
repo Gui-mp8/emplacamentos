@@ -31,12 +31,13 @@ class JsonFiles(SavingFiles):
 
             This method checks if the required folders exist and creates them if they don't.
         """
-        if Validation.check_folders(self.principal_folder) == False:
+        if Validation().check_folders(self.principal_folder) == False:
             os.makedirs(self.principal_folder)
             print(f'{self.principal_folder} folder created!!!')
 
         files_folder = os.path.join(self.principal_folder, f'{self.date}')
-        if Validation.check_folders(files_folder) == False:
+
+        if Validation().check_folders(files_folder) == False:
             os.makedirs(files_folder)
             print(f'{files_folder} folder created!!!')
 
