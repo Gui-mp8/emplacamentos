@@ -55,7 +55,7 @@ class JsonFiles(SavingFiles):
 class CsvFiles(SavingFiles):
     def __init__(self) -> None:
         self.principal_folder = './data'
-        self.date = "2023-10"
+        self.date = datetime.now().strftime("%Y-%m")
         # self.date = datetime.now().strftime("%Y-%m")
 
     def folder_creation(self) -> None:
