@@ -74,7 +74,7 @@ class CsvFiles(SavingFiles):
         date_folder = os.path.join(self.principal_folder, f'{self.date}')
         csv_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.csv')
 
-        if Validation().check_files(csv_file_path) == False and data != {}:
+        if data != {}:
                 with open(csv_file_path, 'w', newline='') as csv_file:
                     writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
                     writer.writeheader()
