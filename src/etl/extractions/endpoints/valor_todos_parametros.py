@@ -1,82 +1,56 @@
-from typing import List, Dict, Any
 from datetime import datetime
 
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+import pandas as pd
+import asyncio
+from aiohttp import ClientSession
 
-from abstractions.endpoints_abstraction import Endpoint
 from models.tabela_fipe import TabelaFipe
+from abstractions.asyncio_endpoints_abstraction import AsyncEndpoint
 
-class ConsultarValorComTodosParametros(Endpoint):
-    def __init__(self, **kwargs) -> None:
-        self.codigo_tabela_referencia = kwargs.get("codigo_tabela_referencia")
-        self.codigo_fipe = kwargs.get("codigo_fipe")
-        self.ano_modelo = kwargs.get("ano_modelo")
-        self.codigo_tipo_combustivel = kwargs.get("codigo_tipo_combustivel")
-        self.mes_referencia = kwargs.get("mes_referencia")
+class ConsultarValorComTodosParametros(AsyncEndpoint):
 
+    def task_fabric(self, session: ClientSession) -> list and str:
+        tasks = []
+        for index, row in self.dataframe.iterrows():
+        # for code in fipe_codes:
+            print(f"Working on fipe code: {row.iloc[4]}")
+            payload = {
+                'codigoTabelaReferencia': f'{row.iloc[3]}',
+                'codigoMarca': '',
+                'codigoModelo': '',
+                'codigoTipoVeiculo': '1',
+                'anoModelo': f'{row.iloc[1]}',
+                'codigoTipoCombustivel': f'{row.iloc[2]}',
+                'tipoVeiculo': 'carro',
+                'modeloCodigoExterno': f'{row.iloc[4]}',
+                'tipoConsulta': 'codigo'
+            }
+            mes_referencia = row.iloc[5]
 
-    def create_session(self) -> requests.Session():
-        session = None
+            tasks.append(session.post(self.endpoint_url, data=payload, ssl=False))
 
-        if session is None:
-            session = requests.Session()
-            retries = Retry(total=5,
-                            backoff_factor=2,
-                            status_forcelist=[500, 502, 503, 504, 520])
-            adapter = HTTPAdapter(max_retries=retries)
-            session.mount('http://', adapter)
-            session.mount('https://', adapter)
+        return tasks, mes_referencia
 
-        return session
+    async def get_endpoint_data(self):
+        data = []
+        async with ClientSession() as session:
+            tasks, mes_referencia = self.task_fabric(session)  # Unpack the return values
+            responses = await asyncio.gather(*tasks)
+            for response in responses:
+                if response.status == 200:
+                    json_data = await response.json()
+                    carros = TabelaFipe(
+                        valor=json_data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
+                        marca=json_data["Marca"],
+                        modelo=json_data["Modelo"],
+                        ano_modelo=json_data["AnoModelo"],
+                        combustivel=json_data["Combustivel"],
+                        codigo_fipe=json_data["CodigoFipe"],
+                        mes_referencia=mes_referencia,  # Use the mes_referencia from task_fabric
+                        extraction_date=datetime.now().strftime("%Y-%m-%d")
+                    )
+                    data.append(carros.model_dump())
+                else:
+                    print(f"Skipping fipe code {json_data['CodigoFipe']} response")
 
-    def get_endpoint_response(self) -> requests.Response:
-        payload = {
-            'codigoTabelaReferencia': f'{self.codigo_tabela_referencia}',
-            'codigoMarca': '',
-            'codigoModelo': '',
-            'codigoTipoVeiculo': '1',
-            'anoModelo': f'{self.ano_modelo}',
-            'codigoTipoCombustivel': f'{self.codigo_tipo_combustivel}',
-            'tipoVeiculo': 'carro',
-            'modeloCodigoExterno': f'{self.codigo_fipe}',
-            'tipoConsulta': 'codigo'
-        }
-
-        response = self.create_session().post(self.endpoint_url,data=payload)
-        if response.status_code == 520:
-                print("Server Error (Status Code 520). Returning Empty Dict.")
-                return {}
-        else:
-            return response
-
-    def get_endpoint_data(self) -> List[Dict[str, Any]]:
-        response = self.get_endpoint_response()
-
-        try:
-            if response != {}:
-                data = response.json()
-                carros = TabelaFipe(
-                    valor=data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
-                    marca=data["Marca"],
-                    modelo=data["Modelo"],
-                    ano_modelo=data["AnoModelo"],
-                    combustivel=data["Combustivel"],
-                    codigo_fipe=data["CodigoFipe"],
-                    mes_referencia=self.mes_referencia,
-                    extraction_date=datetime.now().strftime("%Y-%m-%d")
-                    # "Autenticacao": "t0p7wf13js",
-                    # "TipoVeiculo": 1,
-                    # "SiglaCombustivel": "G",
-                    # "DataConsulta": "s\u00e1bado, 21 de outubro de 2023 11:33"
-                )
-
-                return carros.model_dump()
-            else:
-                print('Returning Empty Dict')
-                return {}
-
-        except ValueError:
-            print(requests.exceptions.JSONDecodeError("Failed to decode response as JSON. Returing Empty Value", response.text, 0))
-            return {}
+        return data
