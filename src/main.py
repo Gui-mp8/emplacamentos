@@ -1,17 +1,18 @@
 import os
 import time  # Import the time module
+from datetime import datetime
 
 import pandas as pd
 
 from utils.config import load_config
-from extractions.fipe_code_data import FipeCode
-from extractions.endpoints.tabela_referencia import ConsultarTabelaDeReferencia
-from extractions.endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
-from extractions.endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
+from etl.extractions.scraper.fipe_code_data import FipeCode
+from etl.extractions.endpoints.tabela_referencia import ConsultarTabelaDeReferencia
+from etl.extractions.endpoints.ano_modelo_codigo_fipe import ConsultarAnoModeloPeloCodigoFipe
+from etl.extractions.endpoints.valor_todos_parametros import ConsultarValorComTodosParametros
 from utils.saving_files import JsonFiles, CsvFiles
-from treatment.month_translation import month_translation
-from load.bigquery.dataset import BigQueryDataset
-from load.bigquery.table import BigQueryTable
+from etl.treatment.month_translation import month_translation
+from etl.load.dw.bigquery.dataset import BigQueryDataset
+from etl.load.dw.bigquery.table import BigQueryTable
 
 def main(config):
     start_time = time.time()  # Record the start time
@@ -49,33 +50,36 @@ def main(config):
             print("Empty Data, skipping this row")
 
 
-    df = pd.read_json("/home/guilherme/Documentos/vscode/projetos/emplacamentos/data/2023-10/ano_combustivel_2023-10.json")
-    print(df.to_string())
-    fipe_car_data = []
+    # df = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
+    # fipe_car_data = []
 
-    for index, row in df.iterrows():
-        data = ConsultarValorComTodosParametros(
-            codigo_tabela_referencia=row["codigo_tabela_referencia"],
-            codigo_fipe=row["codigo_fipe"],
-            ano_modelo=row["ano_modelo"],
-            codigo_tipo_combustivel=row["codigo_tipo_combustivel"],
-            mes_referencia=row["mes_referencia"]
-        )
-        data.endpoint_url = "ConsultarValorComTodosParametros"
-        final_data = data.get_endpoint_data()
+    # for index, row in df.iterrows():
+    #     data = ConsultarValorComTodosParametros(
+    #         codigo_tabela_referencia=row["codigo_tabela_referencia"],
+    #         codigo_fipe=row["codigo_fipe"],
+    #         ano_modelo=row["ano_modelo"],
+    #         codigo_tipo_combustivel=row["codigo_tipo_combustivel"],
+    #         mes_referencia=row["mes_referencia"]
+    #     )
+    #     data.endpoint_url = "ConsultarValorComTodosParametros"
+    #     final_data = data.get_endpoint_data()
 
-        if final_data != {}:
-            fipe_car_data.append(final_data)
-            print(final_data)
+    #     if final_data != {}:
+    #         fipe_car_data.append(final_data)
+    #         print(final_data)
 
-            CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
-        else:
-            print("Empty Data, skipping this row")
-
+    #         CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
+    #     else:
+    #         print("Empty Data, skipping this row")
 
 
-    BigQueryDataset(config).create_dataset()
-    BigQueryTable(config).create_table("./data/2023-10/fipe_car_data_2023-10.csv", "tabela_fipe_dados")
+    # df = pd.read_csv(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}.csv", delimiter=',')
+    # df["mes_referencia"] = pd.to_datetime(df["mes_referencia"], format='%Y-%m-%d')
+    # df["extraction_date"] = pd.to_datetime(df["extraction_date"], format='%Y-%m-%d')
+
+
+    # BigQueryDataset(config).create_dataset()
+    # BigQueryTable(config).create_table(df, "tabela_fipe_dados")
 
     end_time = time.time()  # Record the end time
     elapsed_time = end_time - start_time  # Calculate the elapsed time

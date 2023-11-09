@@ -55,7 +55,8 @@ class JsonFiles(SavingFiles):
 class CsvFiles(SavingFiles):
     def __init__(self) -> None:
         self.principal_folder = './data'
-        self.date = datetime.now().strftime("%Y-%m")
+        self.date = "2023-10"
+        # self.date = datetime.now().strftime("%Y-%m")
 
     def folder_creation(self) -> None:
         if Validation().check_folders(self.principal_folder) == False:
@@ -73,8 +74,8 @@ class CsvFiles(SavingFiles):
         date_folder = os.path.join(self.principal_folder, f'{self.date}')
         csv_file_path = os.path.join(date_folder, f'{file_name}_{self.date}.csv')
 
-        if data != {}:
-            with open(csv_file_path, 'w', newline='') as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
-                writer.writeheader()
-                writer.writerows(data)
+        if Validation().check_files(csv_file_path) == False and data != {}:
+                with open(csv_file_path, 'w', newline='') as csv_file:
+                    writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
+                    writer.writeheader()
+                    writer.writerows(data)
