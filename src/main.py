@@ -3,6 +3,7 @@ import time  # Import the time module
 from datetime import datetime
 
 import pandas as pd
+import asyncio
 
 from utils.config import load_config
 from etl.extractions.scraper.fipe_code_data import FipeCode
@@ -28,62 +29,42 @@ def main(config):
     data = ConsultarTabelaDeReferencia()
     data.endpoint_url = "ConsultarTabelaDeReferencia"
     codigo_tabela_referencia = data.get_endpoint_data()
-    JsonFiles().writing_data(codigo_tabela_referencia, "codigo_tabela_referencia")
+    # JsonFiles().writing_data(codigo_tabela_referencia, "codigo_tabela_referencia")
 
-    ano_combustivel = []
-    for codigo_fipe in fipe_code_list:
-        data = ConsultarAnoModeloPeloCodigoFipe(
-            codigo_tabela_referencia=codigo_tabela_referencia[0]["Codigo"],
-            codigo_fipe=codigo_fipe["code"],
-            mes_referencia=month_translation(codigo_tabela_referencia[0]["Mes"])
-        )
-        data.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
-        response_data = data.get_endpoint_data()
-
-        if response_data != {}:
-
-            for item in response_data:
-                ano_combustivel.append(item)
-                JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
-
-        else:
-            print("Empty Data, skipping this row")
-
-
-    # df = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
-    # fipe_car_data = []
-
-    # for index, row in df.iterrows():
-    #     data = ConsultarValorComTodosParametros(
-    #         codigo_tabela_referencia=row["codigo_tabela_referencia"],
-    #         codigo_fipe=row["codigo_fipe"],
-    #         ano_modelo=row["ano_modelo"],
-    #         codigo_tipo_combustivel=row["codigo_tipo_combustivel"],
-    #         mes_referencia=row["mes_referencia"]
+    # ano_combustivel = []
+    # for codigo_fipe in fipe_code_list:
+    #     data = ConsultarAnoModeloPeloCodigoFipe(
+    #         codigo_tabela_referencia=codigo_tabela_referencia[0]["Codigo"],
+    #         codigo_fipe=codigo_fipe["code"],
+    #         mes_referencia=month_translation(codigo_tabela_referencia[0]["Mes"])
     #     )
-    #     data.endpoint_url = "ConsultarValorComTodosParametros"
-    #     final_data = data.get_endpoint_data()
+    #     data.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
+    #     response_data = data.get_endpoint_data()
 
-    #     if final_data != {}:
-    #         fipe_car_data.append(final_data)
-    #         print(final_data)
+    #     if response_data != {}:
 
-    #         CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
+    #         for item in response_data:
+    #             ano_combustivel.append(item)
+    #             JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
+
     #     else:
     #         print("Empty Data, skipping this row")
 
 
-    # df = pd.read_csv(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}.csv", delimiter=',')
-    # df["mes_referencia"] = pd.to_datetime(df["mes_referencia"], format='%Y-%m-%d')
-    # df["extraction_date"] = pd.to_datetime(df["extraction_date"], format='%Y-%m-%d')
+    # df = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
 
+    endpoint = ConsultarValorComTodosParametros()
+    endpoint.endpoint_url = "ConsultarValorComTodosParametros"
+    endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
 
-    # BigQueryDataset(config).create_dataset()
-    # BigQueryTable(config).create_table(df, "tabela_fipe_dados")
+    fipe_car_data = asyncio.run(endpoint.get_endpoint_data())
 
-    end_time = time.time()  # Record the end time
-    elapsed_time = end_time - start_time  # Calculate the elapsed time
+    CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
     print(f"Program execution time: {elapsed_time} seconds")
+
 if __name__ == "__main__":
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './src/utils/emplacamentos-analise.json'
     config = load_config()
