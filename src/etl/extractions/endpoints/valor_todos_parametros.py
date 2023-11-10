@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any
 
-import pandas as pd
 import asyncio
 from aiohttp import ClientSession
 
