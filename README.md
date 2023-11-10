@@ -24,6 +24,10 @@ Before running the project, make sure you have the following tools installed:
 
 - [Python](https://www.python.org/downloads/)
 
+- [Docker](https://docs.docker.com/engine/install/ubuntu/)
+
+- [docker compose plugin](https://docs.docker.com/compose/install/linux/#install-using-the-repository) atualizado
+
 ## Execution
 
 Follow the steps below to run the project:
