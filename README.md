@@ -7,12 +7,14 @@ This project has the goal to integrate car data, that comes from 3 diferent sour
     <tr>
         <td>Linux</td>
         <td>Code</td>
+        <td>Container</td>
         <td>DataBase</td>
         <td>Visualization</td>
     </tr>
     <tr>
         <td>Ubuntu</td>
         <td>Python</td>
+        <td>Docker</td>
         <td>BigQuery</td>
         <td>Google Looker Studio</td>
     </tr>
