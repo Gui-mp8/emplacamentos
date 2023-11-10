@@ -55,5 +55,10 @@ Follow the steps below to run the project:
 5. Run the following command to execute the code
 
     ```
-    $ python3 src/main.py
+    $ make run
     ```
+
+**OBS:** If you want to delete the directories created, you can use teh comand
+```
+$ cd data && sudo rm -rf {directory} && cd ..
+```
