@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Dict, Any
 
 import pandas as pd
 import asyncio
@@ -9,7 +10,18 @@ from abstractions.asyncio_endpoints_abstraction import AsyncEndpoint
 
 class ConsultarValorComTodosParametros(AsyncEndpoint):
 
-    def task_fabric(self, session: ClientSession) -> list and str:
+    def task_list(self, session: ClientSession) -> list and str:
+        """
+            This method returns a list of tasks for each fipe code to be conclued using
+            asyncio
+
+            Args:
+                session (ClientSession): it's an aiohttp class
+
+            Returns:
+                list: It's the task list
+                str: it's a string that represents the actual month of the extraction
+        """
         tasks = []
         for index, row in self.dataframe.iterrows():
         # for code in fipe_codes:
@@ -31,10 +43,14 @@ class ConsultarValorComTodosParametros(AsyncEndpoint):
 
         return tasks, mes_referencia
 
-    async def get_endpoint_data(self):
+    async def get_endpoint_data(self) -> List[Dict[str, Any]]:
+        """
+            This method gets the endpoint data for each task in a task list and
+            pass it to a list.
+        """
         data = []
         async with ClientSession() as session:
-            tasks, mes_referencia = self.task_fabric(session)  # Unpack the return values
+            tasks, mes_referencia = self.task_list(session)  # Unpack the return values
             responses = await asyncio.gather(*tasks)
             for response in responses:
                 if response.status == 200:
@@ -46,7 +62,7 @@ class ConsultarValorComTodosParametros(AsyncEndpoint):
                         ano_modelo=json_data["AnoModelo"],
                         combustivel=json_data["Combustivel"],
                         codigo_fipe=json_data["CodigoFipe"],
-                        mes_referencia=mes_referencia,  # Use the mes_referencia from task_fabric
+                        mes_referencia=mes_referencia,
                         extraction_date=datetime.now().strftime("%Y-%m-%d")
                     )
                     data.append(carros.model_dump())

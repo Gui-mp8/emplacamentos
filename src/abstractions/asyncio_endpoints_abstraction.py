@@ -26,7 +26,7 @@ class AsyncEndpoint(ABC):
         self._dataframe = df
 
     @abstractmethod
-    def task_fabric(self, session:ClientSession) -> list:
+    def task_list(self, session:ClientSession) -> list:
         pass
 
     @abstractmethod
