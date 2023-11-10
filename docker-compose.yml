@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  emplacamentos-analysis:
+    image: "emplacamento"
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: python3 src/main.py
