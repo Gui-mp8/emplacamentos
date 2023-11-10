@@ -39,26 +39,17 @@ Follow the steps below to run the project:
     ```
     $ git clone git@github.com:Gui-mp8/emplacamentos.git
     ```
-
 2. Access the project directory:
 
     ```
     $ cd emplacamentos
     ```
-3. Create the python environment
-
-    ```
-    $ python3 -m venv venv
-    $ source venv/bin/activate
-    $ pip install -r requiriments.txt
-    ```
-
-4. Running the tests
+3. Running the tests
 
     ```
     $ pytest tests/
     ```
-5. Run the following command to execute the code
+4. Run the following command to execute the code
 
     ```
     $ make run
