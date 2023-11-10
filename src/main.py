@@ -16,7 +16,7 @@ from etl.load.dw.bigquery.dataset import BigQueryDataset
 from etl.load.dw.bigquery.table import BigQueryTable
 
 def main(config):
-    start_time = time.time()  # Record the start time
+    start_time = time.time()
 
     base_url = 'https://www.tabelafipebrasil.com/fipe/carros'
     headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 OPR/103.0.0.0'}
@@ -29,36 +29,21 @@ def main(config):
     data = ConsultarTabelaDeReferencia()
     data.endpoint_url = "ConsultarTabelaDeReferencia"
     codigo_tabela_referencia = data.get_endpoint_data()
-    # JsonFiles().writing_data(codigo_tabela_referencia, "codigo_tabela_referencia")
+    JsonFiles().writing_data(codigo_tabela_referencia, "codigo_tabela_referencia")
 
-    # ano_combustivel = []
-    # for codigo_fipe in fipe_code_list:
-    #     data = ConsultarAnoModeloPeloCodigoFipe(
-    #         codigo_tabela_referencia=codigo_tabela_referencia[0]["Codigo"],
-    #         codigo_fipe=codigo_fipe["code"],
-    #         mes_referencia=month_translation(codigo_tabela_referencia[0]["Mes"])
-    #     )
-    #     data.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
-    #     response_data = data.get_endpoint_data()
-
-    #     if response_data != {}:
-
-    #         for item in response_data:
-    #             ano_combustivel.append(item)
-    #             JsonFiles().writing_data(ano_combustivel, "ano_combustivel")
-
-    #     else:
-    #         print("Empty Data, skipping this row")
-
-
-    # df = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_car_data_{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
+    endpoint = ConsultarAnoModeloPeloCodigoFipe(
+        codigo_tabela_referencia=codigo_tabela_referencia[0]["Codigo"],
+        mes_referencia=month_translation(codigo_tabela_referencia[0]["Mes"])
+    )
+    endpoint.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
+    endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_codes_{datetime.now().strftime('%Y-%m')}.json")
+    ano_modelo_data = asyncio.run(endpoint.get_endpoint_data())
+    JsonFiles().writing_data(ano_modelo_data, "ano_modelo")
 
     endpoint = ConsultarValorComTodosParametros()
     endpoint.endpoint_url = "ConsultarValorComTodosParametros"
-    endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/ano_combustivel_{datetime.now().strftime('%Y-%m')}.json")
-
+    endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/ano_modelo_{datetime.now().strftime('%Y-%m')}.json")
     fipe_car_data = asyncio.run(endpoint.get_endpoint_data())
-
     CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
 
     end_time = time.time()
