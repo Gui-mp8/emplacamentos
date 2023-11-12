@@ -48,17 +48,31 @@ class ConsultarAnoModeloPeloCodigoFipe(AsyncEndpoint):
                 if response.status == 200:
                     json_data = await response.json()
                     for item in json_data:
-                        carro = AnoModelo(
-                            value=item["Value"],
-                            ano_modelo=item["Value"].split("-")[0],
-                            codigo_tipo_combustivel=item["Value"].split("-")[1],
-                            codigo_tabela_referencia = self.codigo_tabela_referencia,
-                            codigo_fipe=fipe_code,
-                            mes_referencia=self.mes_referencia,
-                            extraction_date=datetime.now().strftime("%Y-%m-%d")
-                        )
-                        data.append(carro.model_dump())
+                        item["codigo_tabela_referencia"] = self.codigo_tabela_referencia
+                        item["codigo_fipe"]=fipe_code
+                        item["mes_referencia"]=self.mes_referencia
+                        item["extraction_date"]=datetime.now().strftime("%Y-%m-%d")
+
+                        data.append(item)
                 else:
                     print("Skipping response")
-
+        print(data)
         return data
+
+    def validated_data(self) -> List[Dict[str, Any]]:
+        validated_data = []
+        json_data = asyncio.run(self.get_endpoint_data())
+        for item in json_data:
+            carro = AnoModelo(
+            value=item["Value"],
+            ano_modelo=item["Value"].split("-")[0],
+            codigo_tipo_combustivel=item["Value"].split("-")[1],
+            codigo_tabela_referencia = item["codigo_tabela_referencia"],
+            codigo_fipe=item["codigo_fipe"],
+            mes_referencia=item["mes_referencia"],
+            extraction_date=item["extraction_date"]
+            )
+
+            validated_data.append(carro.model_dump())
+
+        return validated_data

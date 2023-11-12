@@ -1,9 +1,8 @@
 import os
-import time  # Import the time module
+import time
 from datetime import datetime
 
 import pandas as pd
-import asyncio
 
 from utils.config import load_config
 from etl.extractions.scraper.fipe_code_data import FipeCode
@@ -37,13 +36,13 @@ def main(config):
     )
     endpoint.endpoint_url = "ConsultarAnoModeloPeloCodigoFipe"
     endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/fipe_codes_{datetime.now().strftime('%Y-%m')}.json")
-    ano_modelo_data = asyncio.run(endpoint.get_endpoint_data())
+    ano_modelo_data = endpoint.validated_data()
     JsonFiles().writing_data(ano_modelo_data, "ano_modelo")
 
     endpoint = ConsultarValorComTodosParametros()
     endpoint.endpoint_url = "ConsultarValorComTodosParametros"
     endpoint.dataframe = pd.read_json(f"./data/{datetime.now().strftime('%Y-%m')}/ano_modelo_{datetime.now().strftime('%Y-%m')}.json")
-    fipe_car_data = asyncio.run(endpoint.get_endpoint_data())
+    fipe_car_data = endpoint.validated_data()
     CsvFiles().writing_data(fipe_car_data, "fipe_car_data")
 
     end_time = time.time()

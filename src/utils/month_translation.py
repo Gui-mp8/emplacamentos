@@ -15,12 +15,15 @@ def month_translation(mes_string: str) -> str:
         'novembro': '11',
         'dezembro': '12'
     }
+    if "/" in mes_string:
+        month = mes_string.split('/')[0]
+        year = mes_string.split('/')[1]
 
-    month = mes_string.split('/')[0]
-    year = mes_string.split('/')[1].replace(" ", "")
+    elif " " in mes_string:
+        month = mes_string.split(" ")[0]
+        year = mes_string.split(" ")[2]
 
     month_number = month_translation.get(month.lower(), month)
     mes_referencia = f"{year}-{month_number}-01"
-
 
     return mes_referencia

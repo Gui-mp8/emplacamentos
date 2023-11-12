@@ -32,3 +32,7 @@ class AsyncEndpoint(ABC):
     @abstractmethod
     async def get_endpoint_data(self) -> List[Dict[str, Any]]:
         pass
+
+    @abstractmethod
+    def validated_data(self) -> List[Dict[str, Any]]:
+        pass

@@ -8,6 +8,8 @@ from models.tabela_fipe import TabelaFipe
 from abstractions.asyncio_endpoints_abstraction import AsyncEndpoint
 
 class ConsultarValorComTodosParametros(AsyncEndpoint):
+    def __init__(self) -> None:
+        self.mes_referencia = None
 
     def task_list(self, session: ClientSession) -> list and str:
         """
@@ -36,11 +38,11 @@ class ConsultarValorComTodosParametros(AsyncEndpoint):
                 'modeloCodigoExterno': f'{row.iloc[4]}',
                 'tipoConsulta': 'codigo'
             }
-            mes_referencia = row.iloc[5]
+            self.mes_referencia = row.iloc[5]
 
             tasks.append(session.post(self.endpoint_url, data=payload, ssl=False))
 
-        return tasks, mes_referencia
+        return tasks
 
     async def get_endpoint_data(self) -> List[Dict[str, Any]]:
         """
@@ -49,23 +51,31 @@ class ConsultarValorComTodosParametros(AsyncEndpoint):
         """
         data = []
         async with ClientSession() as session:
-            tasks, mes_referencia = self.task_list(session)  # Unpack the return values
+            tasks = self.task_list(session)  # Unpack the return values
             responses = await asyncio.gather(*tasks)
             for response in responses:
                 if response.status == 200:
                     json_data = await response.json()
-                    carros = TabelaFipe(
-                        valor=json_data["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
-                        marca=json_data["Marca"],
-                        modelo=json_data["Modelo"],
-                        ano_modelo=json_data["AnoModelo"],
-                        combustivel=json_data["Combustivel"],
-                        codigo_fipe=json_data["CodigoFipe"],
-                        mes_referencia=mes_referencia,
-                        extraction_date=datetime.now().strftime("%Y-%m-%d")
-                    )
-                    data.append(carros.model_dump())
+                    data.append(json_data)
                 else:
                     print(f"Skipping fipe code {json_data['CodigoFipe']} response")
 
         return data
+
+    def validated_data(self) -> List[Dict[str, Any]]:
+        validated_data = []
+        json_data = asyncio.run(self.get_endpoint_data())
+        for item in json_data:
+            carro = TabelaFipe(
+            valor=item["Valor"].split(" ")[1].replace(".", "").replace(',', '.'),
+            marca=item["Marca"],
+            modelo=item["Modelo"],
+            ano_modelo=item["AnoModelo"],
+            combustivel=item["Combustivel"],
+            codigo_fipe=item["CodigoFipe"],
+            mes_referencia=self.mes_referencia,
+            extraction_date=datetime.now().strftime("%Y-%m-%d")
+        )
+            validated_data.append(carro.model_dump())
+
+        return validated_data
