@@ -1,6 +1,5 @@
 import requests
 
-
 def test_endpoint_tabela_referencia():
     response = requests.post("https://veiculos.fipe.org.br/api/veiculos/ConsultarTabelaDeReferencia")
 
