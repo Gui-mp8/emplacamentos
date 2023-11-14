@@ -41,7 +41,7 @@ class ConsultarAnoModeloPeloCodigoFipe(AsyncEndpoint):
         data = []
         async with ClientSession() as session:
             tasks = self.task_list(session)
-            awaiting_tasks = [(task['task'], task['fipe_code']) for task in tasks]
+            awaiting_tasks = [(task['task'], task['fipe_code']) for task in tasks] # list of tuples
 
             responses = await asyncio.gather(*[task[0] for task in awaiting_tasks])
             for response, fipe_code in zip(responses, [task[1] for task in awaiting_tasks]):
