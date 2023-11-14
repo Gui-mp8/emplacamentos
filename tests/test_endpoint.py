@@ -36,3 +36,4 @@ def test_endpoint_tabela_todos_parametros():
     response = requests.post("https://veiculos.fipe.org.br/api/veiculos/ConsultarValorComTodosParametros", data=payload)
 
     assert response.status_code==200
+    
