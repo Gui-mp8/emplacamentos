@@ -15,11 +15,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install requirements
-        run: pip install -r requirements-dev.txt
-
-      - name: List directory contents
-        run: ls -la
-
-      - name: Run tests
-        run: pytest -v tests/
+      - name: Run install requirements & tests
+        run: |
+          pip install -r requirements-dev.txt
+          pytest -v tests/
